@@ -1,0 +1,78 @@
+﻿#Our complete program will look like this:
+# Python Code Chapter 10
+
+# Import the LED class from the gpiozero control library
+from gpiozero import LED
+
+# Import the sleep class from time library
+from time import sleep
+
+# Here we define the three leds objects and connection
+
+# The Left Yellow led is connected to gpio PIN 7
+Left_yellow_led = LED(7)
+
+# The red led is connected to gpio PIN 8
+Stop_red_led = LED(8)
+
+# The Right Yellow led is connected to gpio PIN 11
+Right_yellow_led = LED(11)
+
+#Let's start by turning the all lights off
+Left_yellow_led.off()
+Stop_red_led.off()
+Right_yellow_led.off()
+
+# Initiate a loop to keep handling signal lights as if we were driving a car after every instruction
+while True:
+
+# Here we will begin the interaction with the driver
+   print ("Hello Driver!!! What do you want to do with your signal lights?")
+# Instructions
+   print("Please enter your command:")
+   print("enter L if you want to turn your Left signal on for 5 seconds")
+   print("enter S if you want to turn your Stop signal on")
+   print("enter R if you want to turn turn your Right signal on for 5 seconds")
+   print("enter W if you want to turn your Hazard lights on")
+   print("enter C if you want to turn your Stop or Hazard lights off")
+
+   # Collect or receive the desired instruction
+   instruction=input()
+   # Show the desired instruction
+   print("Your wish is my command and your instruction is ",instruction)
+   sleep(1)
+
+# Process the instruction
+   if instruction=='L' or instruction=='l':
+      # Turning the LEFT turn lights for 5 seconds
+      print("Turning the LEFT turn light for 5 seconds")
+      Left_yellow_led.blink()
+      sleep(5)
+      Left_yellow_led.off()
+   else:
+      if instruction=='S' or instruction=='s':
+         # Turning the STOP lights
+         print("Turning the STOP light ON")
+         Stop_red_led.on()
+      else:
+         if instruction=='R' or instruction=='r':
+            # Turning the RIGHT turn lights for 5 seconds
+            print("Turning the RIGHT turn light for 5 seconds")
+            Right_yellow_led.blink()
+            sleep(5)
+            Right_yellow_led.off()
+         else:
+            if instruction=='W' or instruction=='w':
+               # Turning the LEFT and RIGHT turn lights ON
+               print("Turning the HAZARD WARNING lights ON")
+               Left_yellow_led.blink()
+               Right_yellow_led.blink()              
+            else:
+               if instruction=='C' or instruction=='C':
+                  # Clear all lights: if STOP light was on the turn it off, if HAZZARD WARNING lights were blinking the turn them off
+                    Left_yellow_led.off()
+                    Stop_red_led.off()
+                    Right_yellow_led.off()
+               else:
+                  print ("Please select the correct instruction")
+  # This is where the while True loop repeats

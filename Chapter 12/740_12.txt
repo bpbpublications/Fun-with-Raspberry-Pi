@@ -1,0 +1,62 @@
+﻿# 740_12-03 Arduino and Raspberry Pi bi-directional communication thru serial USB Port
+# Reading a command from keyboard and sending text command to Arduino thru USB connections
+
+
+# Import pygame Library
+import pygame
+# Import the pyserial library
+import serial
+
+from time import sleep
+
+# Define our serial port identification and speed accordingly to Arduino board setup in C++ code
+ourserialport = serial.Serial('/dev/ttyACM0',9600)
+
+# Perform an initialization of our connection so we have clean data
+ourserialport.flushInput()
+
+# show pygame windonw to accept input
+pygame.init()
+window = pygame.display.set_mode((200, 200))
+pygame.display.set_caption("Pygame GUI Screen")
+
+# Here we program our instructions to continuosly read the data received thru the serial port connectionwithin an infinite loop
+while True:
+    try:
+        readbytes = ourserialport.readline()
+        valuereceived = readbytes.decode('utf-8').strip()
+        print(valuereceived)
+        sleep(1)
+        # Call the pygame library and create a basic GUI to start reading keyboard and mouse inputs
+
+        # Start a loop to keep reading keyboard inputs until QUIT key is pressed
+        loopflag=True
+        print ("Press any direction key (arrows): Up for On, Down for Off, or ESC to quit")
+        
+        #Start
+        while loopflag:
+            for keypressed in pygame.event.get():
+                if keypressed.type == pygame.QUIT:
+                    loopflag = False
+                if keypressed.type == pygame.KEYDOWN:
+                    ourkey = pygame.key.name(keypressed.key)
+                    print(ourkey)
+                    if ourkey == "escape":
+                        loopflag = False
+                    if ourkey == "up":
+                        # define code to send “On” text command to Arduino
+                        ourcommand = "On"
+                        ourcommand = ourcommand.encode('utf-8')
+                        ourserialport.write(ourcommand)
+                        sleep(1)
+                        loopflag = False
+                    else:
+                        if ourkey == "down":
+                           # define code to send “Off” text command to Arduino
+                           ourcommand = "Off"
+                           ourcommand = ourcommand.encode('utf-8')
+                           ourserialport.write(ourcommand)
+                           sleep(1)
+                           loopflag = False
+    except KeyboardInterrupt:
+        break

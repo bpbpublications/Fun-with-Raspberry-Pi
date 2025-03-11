@@ -1,0 +1,53 @@
+﻿# Import the Explorer HAT Pro class library
+import explorerhat
+
+from time import sleep
+
+# Start our cart with two motors smoothly at 20% the speed
+# Assume motor 1 is left wheel and motor 2 is right wheel
+explorerhat.motor.one.forward(20)
+explorerhat.motor.two.forward(20)
+
+# Let it run for 2 seconds
+sleep(2)
+
+# Increase the speed of our cart setting 50% the speed
+explorerhat.motor.one.speed(50)
+explorerhat.motor.two.speed(50)
+
+# Let’s keep it running for 3 seconds
+sleep(3)
+
+# Change the speed of our left motor to a slower one by setting it at 45% the speed
+explorerhat.motor.one.speed(45)
+
+# Let’s keep it running for half a second
+sleep(0.5)
+
+# Resume the speed of our left motor
+explorerhat.motor.one.speed(50)
+
+# Let’s keep it running for 3 seconds
+sleep(3)
+
+# Stop our cart
+explorerhat.motor.one.stop()
+explorerhat.motor.two.stop()
+
+# Play with both wheels slowly
+explorerhat.motor.one.forward(5)
+explorerhat.motor.two.backward(5)
+# Let’s keep it running for 3 seconds
+sleep(3)
+
+#Increase fun speed
+explorerhat.motor.one.speed(25)
+explorerhat.motor.two.speed(25)
+
+# Let’s keep it running for 1 seconds
+sleep(1)
+
+# Stop our motor
+explorerhat.motor.one.stop()
+explorerhat.motor.two.stop()
+

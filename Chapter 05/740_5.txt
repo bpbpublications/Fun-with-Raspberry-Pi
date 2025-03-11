@@ -1,0 +1,50 @@
+﻿# Python Code Chapter 5
+# Import the pyaudio class from the pyaudio control library and wave and os libraries
+
+import pyaudio
+import wave
+import os
+
+# Define the default values for pyaudio functions parameters
+
+format_type_value = pyaudio.paInt16
+number_of_channel_value = 1
+sampling_rate_value = 44100
+buffer_segment_size = 4096
+recording_size_seconds = 5
+device_index_value = 2
+filename_of_audio = 'Audiofile_01'
+
+# create pyaudio object and audio stream with parameters set 
+
+audio_object = pyaudio.PyAudio() # create pyaudio instantiation
+
+stream = audio_object.open(format = format_type_value,rate = sampling_rate_value,channels = number_of_channel_value,
+                    input_device_index = device_index_value,input = True,
+                    frames_per_buffer=buffer_segment_size)
+
+print("recording audio now")
+frames_array = []
+
+# Iterations getting stream audio segments and appending those audio segments to frame_array
+
+for ii in range(0,int((sampling_rate_value/buffer_segment_size)*recording_size_seconds)):
+    data = stream.read(buffer_segment_size,exception_on_overflow = False)
+    frames_array.append(data)
+print("finished recording")
+
+# Closing the audio stream and the pyaudio once we finished recording
+stream.stop_stream()
+stream.close()
+audio_object.terminate()
+
+# Saving the collected audio frames in the array as a .wav file
+wav_file = wave.open(filename_of_audio,'wb')
+wav_file.setnchannels(number_of_channel_value)
+wav_file.setsampwidth(audio_object.get_sample_size(format_type_value))
+wav_file.setframerate(sampling_rate_value)
+wav_file.writeframes(b''.join(frames_array))
+wav_file.close()
+#Invoking the aplay command to play the audio file
+os.system("aplay Audiofile_01")
+

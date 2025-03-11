@@ -1,0 +1,140 @@
+﻿# Python Code Chapter 15 IoT Messaging code
+# This code plays the role os Suscriber, and it is suscribing to the 
+# lightscontrol/turnsignal category
+
+# Our Publisher is going to be represented by commands in LxTerminal
+# by typing the Mosquitto Broker publish command as follows
+# -t describes the category suscribed to
+# -m has the actual message which, in this case, is the turnsignal command
+
+# This is the command to indicate a Right Turn signal
+# mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "Right"
+# we modified the code froM ch_10 so we would be able to process
+# the equivalent commands for Right Turn signal as follows
+# mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "R"
+# or
+# mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "r"
+
+import pygame
+
+# Import the LED class from the gpiozero control library
+from gpiozero import LED
+
+# Import the sleep class from time library
+from time import sleep
+
+# Here we define the three leds objects and connection
+
+# The Left Yellow led is connected to gpio PIN 7
+Left_yellow_led = LED(7)
+
+# The red led is connected to gpio PIN 8
+Stop_red_led = LED(8)
+
+# The Right Yellow led is connected to gpio PIN 11
+Right_yellow_led = LED(11)
+
+#Let's start by turning the all lights off
+Left_yellow_led.off()
+Stop_red_led.off()
+Right_yellow_led.off()
+
+# Import the Paho library to interact with MQTT Broker
+import paho.mqtt.client as mqtt
+
+# We define the address of the MQTT Broker, in this case, the Mosquitto broker is on the same Raspberry Pi where our Suscriber code is running so, our MQTT Server Address is localhost
+
+MQTTserverAddress = "localhost"
+
+# Define the category suscribed to
+MQTTClientName = "LightsControl"
+
+mqttClient = mqtt.Client(MQTTClientName)
+
+# Initiate and clear the messaging queue
+SuscriptionStatusMessages = False
+
+def MQTTBrokerConnection(client, userdata, flags, rc):
+    global SuscriptionStatusMessages
+    if not SuscriptionStatusMessages:
+        SuscriptionStatusMessages = True
+        print("subscribing")
+        # This code plays the role os Suscriber, and it is suscribing to the 
+        # lightscontrol/turnsignal category
+        mqttClient.subscribe("lightscontrol/turnsignal")
+        print("subscribed")
+
+def MQTTMessageReceived(client, userdata, msg):
+    message = msg.payload.decode(encoding='UTF-8')
+
+    # Here we will begin the interaction with the driver
+    print ("Hello Driver!!! What do you want to do with your signal lights?")
+    print("Please enter your command:")
+    print("enter L if you want to turn your Left signal on for 5 seconds")
+    print("enter S if you want to turn your Stop signal on")
+    print("enter R if you want to turn turn your Right signal on for 5 seconds")
+    print("enter W if you want to turn your Hazard lights on")
+    print("enter C if you want to turn your Stop or Hazard lights off")
+
+
+    if message == "Right" or message == "R" or message == "r":
+        # Turning the RIGHT turn lights for 5 seconds
+        print("Turning the RIGHT turn light for 5 seconds")
+        Right_yellow_led.blink()
+        sleep(5)
+        Right_yellow_led.off()
+    elif message == "Left" or message == "L" or message == "l":
+        # Turning the LEFT turn lights for 5 seconds
+        print("Turning the LEFT turn light for 5 seconds")
+        Left_yellow_led.blink()
+        sleep(5)
+        Left_yellow_led.off()
+    elif message == "Stop" or message == "S" or message == "s":
+        # Turning the STOP lights
+        print("Turning the STOP light ON")
+        Stop_red_led.on()
+    elif message == "Warning" or message == "W" or message == "w":
+        print("HAZARD Lights")
+        # Turning the LEFT and RIGHT turn lights ON
+        print("Turning the HAZARD WARNING lights ON")
+        Right_yellow_led.blink()
+        Right_yellow_led.blink() 
+    elif message == "Clear" or message == "C" or message == "c":
+        # Clear all lights: if STOP light was on the turn it off, 
+        # if HAZZARD WARNING lights were blinking the turn them off
+        print("Clearing Lights")
+        Left_yellow_led.off()
+        Stop_red_led.off()
+        Right_yellow_led.off()  
+    else:
+        print("INCORRECT TURNLIGHT COMMAND")
+        
+
+# Start the main program by calling functions to mqttClient
+mqttClient.on_connect = MQTTBrokerConnection
+mqttClient.on_message = MQTTMessageReceived
+
+# Connect to the MQTT server & loop forever.
+# CTRL-C will stop the program from running.
+
+mqttClient.connect(MQTTserverAddress)
+mqttClient.loop_forever()
+
+
+Now that we have a response from the driver, we will process it using an if-else decision control in our code. This is done by validating the content of the instruction variable we defined for the response.
+The commands in the LxTerminal can be similar to the ones shown below:
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "Right"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "R"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "r"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "Left"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "L"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "l"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "Stop"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "S"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "s"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "Warning"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "W"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "w"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "Clear"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "C"
+mosquitto_pub -h localhost -t "lightscontrol/turnsignal" -m "c"

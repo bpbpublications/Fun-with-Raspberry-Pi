@@ -1,0 +1,50 @@
+﻿# Chapter 14-01: Making a basic robot showing servo control
+# Moving our robot arm, setting a specific angle between 0º and 180º
+
+# Import the GPIO library and the time library
+import RPi.GPIO as GPIO
+import time
+
+# Define our GPIO18 as our PWM Control Pin
+PWMPIN = 18
+
+# Define the naming of our GPIO as the BCM nomenclature (where pin number 12 is GPIO18)
+GPIO.setmode(GPIO.BCM)
+
+# Here we assign GPIO18 as output PIN so we can send PWM values to GPIO18
+GPIO.setup(PWMPIN, GPIO.OUT)
+
+# Define our servocontrol object as a PWM signal management at 50Hz
+servocontrol = GPIO.PWM(PWMPIN, 50) # GPIO 18 for PWM with 50Hz
+
+# Let’s start with the lever position at 0º so we define the angle to 0 and dutycycle to 0
+dutycycle=0
+angle=0
+
+# With dutycycle set to 0, we initialize our servo position, that as a off pulse or 0
+servocontrol.start(dutycycle) 
+
+# We initiate our code with a loop Try that can be interrupted by the keyboard keys <ctrl> C
+try:
+
+# within the loop we will initiate an infinite loop with while True and inside it we will move the arm and position it at different angles each time: 0º, 45º, 90º, 135º and 180º, this is, we are going to move it 45º each time
+
+  while True:
+    # The next formula calculates the proportional PWM value (dutycycle) accordingly to the 2% and 12% limit values for our SG90 depending on the angle value
+    dutycycle=angle/180*10+2
+    # this PWM value for dutycycle has to be an integer
+    dutycycle=int(dutycycle)
+    # We show both values, the PWM calculated dutycycle and the corresponding angle before we move the arm
+    print(dutycycle, angle)
+    # Here we reset the arm to 0º everytime we reach 180º or increment the angle 45º
+    if angle > 180:
+        angle=0
+    else:
+        angle=angle+45
+    # and with that value we send the PWM pulse to the GPIO defined as servocontrol object to be received by our SG90 and thus move the arm and stop for a moment
+    servocontrol.ChangeDutyCycle(dutycycle)
+    time.sleep(0.5)
+# whenever <ctrl> c is pressed, it finished our try loop and we proceed to stop our SG90 and cleanup the pieces we used in our program
+except KeyboardInterrupt:
+  servocontrol.stop()
+  GPIO.cleanup()

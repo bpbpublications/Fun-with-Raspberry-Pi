@@ -1,0 +1,83 @@
+﻿# Chapter 11: Controlling Car Speed
+# Drive our Smart Car forwards 1 by 1 speed
+
+# Import the Explorer HAT Pro class library
+import explorerhat
+
+# Import pygame Library
+import pygame
+
+from time import sleep
+
+# Call the pygame library and create a basic GUI to start reading keyboard and mouse inputs
+pygame.init()
+window = pygame.display.set_mode((200, 200))
+pygame.display.set_caption("Pygame GUI Screen")
+
+# Start a loop to keep reading keyboard inputs until QUIT key is pressed
+loopflag=True
+print ("Press any direction key (arrows), Space tab for U-Turn or ESC to quit")
+
+#Start motor speed
+motorspeed = 40
+
+while loopflag:
+    for keypressed in pygame.event.get():
+        if keypressed.type == pygame.QUIT:
+            loopflag = False
+        
+        if keypressed.type == pygame.KEYDOWN:
+            ourkey = pygame.key.name(keypressed.key)
+            print(ourkey)
+            if ourkey == "escape":
+                loopflag = False
+            if ourkey == "up":
+                # Increase speed
+                if motorspeed < 100:
+                    motorspeed = motorspeed + 1
+                print ("Speed = ",motorspeed)
+                explorerhat.motor.one.forward(motorspeed)
+                explorerhat.motor.two.forward(motorspeed)
+            else:
+                if ourkey == "down":
+                   # Decrease speed
+                    if motorspeed > 0:
+                         motorspeed = motorspeed - 1
+                    print ("Slowing Speed = ",motorspeed)
+                    explorerhat.motor.one.forward(motorspeed)
+                    explorerhat.motor.two.forward(motorspeed)
+                else:
+                    if ourkey == "left":
+                       # Decrease speed of left motor for 2 seconds while the right motor runs at actual speed to allow a left turn
+                        if motorspeed > 10:
+                            motorspeedleft = motorspeed - 10
+                            explorerhat.motor.one.forward(motorspeedleft)
+                            sleep(2)
+                            explorerhat.motor.one.forward(motorspeed)
+                    else:
+                        if ourkey == "right":
+                            # Decrease speed of right motor for 2 seconds while the left motor runs at actual speed to allow a right turn
+                            if motorspeed > 10:
+                                motorspeedright = motorspeed - 10
+                                explorerhat.motor.two.forward(motorspeedright)
+                                sleep(2)
+                                explorerhat.motor.two.forward(motorspeed)
+                        else:
+                            if ourkey == "space":
+                                # Increase the speed of left motor and decrease speed of right motor for 2 seconds to make a U-turn
+                                if motorspeed > 10 and motorspeed < 90:
+                                    motorspeedleft = motorspeed + 50
+                                    motorspeedright = motorspeed - 10
+                                    explorerhat.motor.one.forward(motorspeedleft)
+                                    explorerhat.motor.two.forward(motorspeedright)
+                                    print ("U-Turn = ",motorspeed)
+                                    sleep(2)
+                                    explorerhat.motor.one.forward(motorspeed)
+                                    explorerhat.motor.two.forward(motorspeed)
+                            else:
+                                print ("Wrong key")
+# This is where the while True loop exits: stops motors and close keyboard interaction of pygame
+explorerhat.motor.one.stop()
+explorerhat.motor.two.stop()   
+pygame.quit()
+

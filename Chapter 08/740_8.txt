@@ -1,0 +1,108 @@
+﻿# Driving our Smart Car
+
+# Import the Explorer HAT Pro class library
+import explorerhat
+
+# Opening the view of our camera
+from picamera import PiCamera
+from time import sleep
+
+# Definition of our camera
+camera = PiCamera()
+
+# View what the camera sees for two seconds before our first move
+camera.start_preview()
+sleep(2)
+# Let’s send a welcome message
+print(‘Hello: You are about to drive your Smart Car remotely’)
+
+# Initiate a loop to continue driving our Smart Car after every instruction
+
+while True:
+   # Instructions
+   print(‘Please enter your command:’)
+   print(‘enter D if you want to drive the car forward’)
+   print(‘enter B if you want to drive the car backwwards’)
+   print(‘enter L if you want to turn the car to the left’)
+   print(‘enter R if you want to turn the car to the right’)
+   print(‘enter U if you want to turn the car to make a U-Turn’)
+
+   # Collect or receive the desired instruction
+   instruction=input()
+   # Show the desired instruction
+   print('Your wish is my command and your instruction is ',instruction)
+
+   # Process the instruction
+   if instruction=='D' or instruction=='d':
+      print(‘enter the speed of the drive, a number between 1-100’)
+      speed=input()
+      print(‘enter the duration in seconds for the drive’)
+      duration=input()
+      # Drive our car forward
+      explorerhat.motor.one.forward(speed)
+      explorerhat.motor.two.forward(speed)
+      sleep(duration)
+      # Stop our motors
+      explorerhat.motor.one.stop()
+      explorerhat.motor.two.stop()
+   else:
+      if instruction=='B' or instruction=='b':
+         print(‘enter the duration in seconds for the backwards drive’)
+         duration=input()
+         # Drive our car backward at 40 speed
+         explorerhat.motor.one.backward(40)
+         explorerhat.motor.two.backward(40)
+         sleep(duration)
+         # Stop our motors
+         explorerhat.motor.one.stop()
+         explorerhat.motor.two.stop()
+      else:
+         if instruction=='L' or instruction=='l':
+            print(‘enter the type of turn 45 or 90 degrees turn’)
+            angle=input()
+            if angle == 45:
+               # TURN 45 degrees to the left
+               explorerhat.motor.one.forward(20)
+               explorerhat.motor.two.backward(20)
+               sleep(1)
+               explorerhat.motor.one.stop()
+               explorerhat.motor.two.stop()
+            else:
+               # TURN 90 degrees to the left
+               explorerhat.motor.one.forward(20)
+               explorerhat.motor.two.backward(20)
+               sleep(2)
+               explorerhat.motor.one.stop()
+               explorerhat.motor.two.stop()
+         else:
+            if instruction=='R' or instruction=='r':
+               print(‘enter the type of turn 45 or 90 degrees turn’)
+               angle=input()
+               if angle == 45:
+                  # TURN 45 degrees to the right
+                  explorerhat.motor.one.backward(20)
+                  explorerhat.motor.two.forward(20)
+                  sleep(1)
+                  explorerhat.motor.one.stop()
+                  explorerhat.motor.two.stop()
+               else:
+                  # TURN 90 degrees to the right
+                  explorerhat.motor.one.backward(20)
+                  explorerhat.motor.two.forward(20)
+                  sleep(2)
+                  explorerhat.motor.one.stop()
+                  explorerhat.motor.two.stop()
+            else:
+               if instruction=='U' or instruction=='u':
+                  # TURN 180 degrees to the right
+                  explorerhat.motor.one.backward(20)
+                  explorerhat.motor.two.forward(20)
+                  sleep(4)
+                  explorerhat.motor.one.stop()
+                  explorerhat.motor.two.stop()
+               else
+                  print ('Please select the correct instruction')
+   # View what the camera sees for two seconds so we can decide our next move
+   camera.start_preview()
+   sleep(2)
+# This is where the while True loop repeats

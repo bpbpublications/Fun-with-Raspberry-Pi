@@ -1,0 +1,64 @@
+﻿# Python Code Chapter 6 The Video Doorbell
+
+# Import the PiCamera class from the picamera control library
+
+from picamera import PiCamera
+from time import sleep
+
+# Import the pyaudio class from the pyaudio control library
+import pyaudio
+import wave
+import os
+
+# Definition of our camera
+camera = PiCamera()
+
+# Define the default values for pyaudio functions parameters
+# For the voice message to our visitor, 5 seconds will be enough
+
+format_type_value = pyaudio.paInt16
+number_of_channel_value = 1
+sampling_rate_value = 44100
+buffer_segment_size = 4096
+recording_size_seconds = 5
+device_index_value = 2
+filename_of_audio = 'Voicemessage_01'
+
+# create pyaudio object and audio stream with parameters set
+audio_object = pyaudio.PyAudio()
+
+
+# Starting to view what the camera sees when we hear someone knocks the door
+camera.start_preview()
+sleep(5)
+
+stream = audio_object.open(format = format_type_value,rate = sampling_rate_value,channels = number_of_channel_value,
+                    input_device_index = device_index_value,input = True,
+                    frames_per_buffer=buffer_segment_size)
+print("recording voice message...")
+frames_array = []
+# Iterations getting stream audio segments and appending those audio segments to frame_array for the 5 seconds we defined our voice message to be
+for ii in range(0,int((sampling_rate_value/buffer_segment_size)*recording_size_seconds)):
+    data = stream.read(buffer_segment_size,exception_on_overflow = False)
+    frames_array.append(data)
+
+# Closing the audio stream and the pyaudio once we finished recording
+stream.stop_stream()
+stream.close()
+audio_object.terminate()
+
+# Saving the collected audio frames in the array as a .wav file
+wav_file = wave.open(filename_of_audio,'wb')
+wav_file.setnchannels(number_of_channel_value)
+wav_file.setsampwidth(audio_object.get_sample_size(format_type_value))
+wav_file.setframerate(sampling_rate_value)
+wav_file.writeframes(b''.join(frames_array))
+wav_file.close()
+#Invoking the aplay command to play the audio file
+os.system("aplay Voicemessage_01")
+
+# Stoping the view of the camera after we sent the message to the visitor
+camera.stop_preview()
+
+
+

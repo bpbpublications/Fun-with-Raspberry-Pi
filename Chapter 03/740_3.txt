@@ -1,0 +1,47 @@
+﻿# Python Code Chapter 3
+
+# Import the MotionSensor class from the gpiozero control library
+from gpiozero import MotionSensor
+
+# Import the LED class from the gpiozero control library
+from gpiozero import LED
+
+# Import the sleep class from time library
+from time import sleep
+
+# Here we define the movement detector (PIR motion sensor) object and connection
+
+# The PIR motion  is connected to gpio PIN 18
+Movement_Detector = MotionSensor(18)
+
+# Here we define the red and green leds objects and connection
+# The red led is connected to gpio PIN 8
+red_led = LED(8)
+
+# The green led is connected to gpio PIN 11
+green_led = LED(11)
+
+# Here we will beging the code to simulate our cat walking
+
+#Let's start by turning the red and green lights off
+red_led.off()
+green_led.off()
+
+print ("Let's take a walk!")
+
+# Next we will start a loop for 10 times, let's say we are going to ask out cat to take 10 careful steps
+counter = 0
+while counter < 10:
+counter = counter + 1
+print ("Step:", counter)
+sleep(1)
+if Movement_Detector.motion_detected:
+print("STOP!! Something moved")
+red_led.on()
+sleep(3)
+red_led.off()
+else:
+print("Go!! Keep Walking")
+green_led.on()
+sleep(3)
+green_led.off()

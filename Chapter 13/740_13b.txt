@@ -1,0 +1,50 @@
+﻿# 740_13-02 Arduino and Raspberry Pi bi-directional communication thru serial USB Port
+# Reading humidity from Arduino board and starting water pump with AI
+
+# Import the Explorer HAT Pro class library
+import explorerhat
+
+# Import the pyserial library
+import serial
+
+from time import sleep
+
+# Define our serial port identification and speed accordingly to Arduino board setup in C++ code ttyACM0 or ttyACM1 or ttyACM2
+ourserialport = serial.Serial('/dev/ttyACM2',9600)
+
+# Perform an initialization of our connection so we have clean data
+ourserialport.flushInput()
+
+# Here we program our instructions to continuoUsly read the data received thru the serial port connection
+while True:
+    try:
+        readbytes = ourserialport.readline()
+        stringvaluereceived = readbytes.decode('utf-8').strip()
+        valuereceived=int(stringvaluereceived)
+        print("Humidity read received: ", valuereceived)
+
+        # AI Logic
+        if valuereceived >= 1000:
+            print("Soil is DRY, let's start irrigating")
+            # Start our waterpump for 5 seconds
+            # The water pump is connected to motor 1 terminal of Explorer HAT Pro
+            explorerhat.motor.one.forward()
+        else:
+            if valuereceived > 950 and valuereceived < 1000:
+                print("Soil is little DRY, let's irrigate slowly")
+                # Start our waterpump for 5 seconds at slow speed
+                explorerhat.motor.one.forward(50)
+            else:
+                if valuereceived > 900 and valuereceived < 950:
+                    print("Soil is getting WET, let's irrigate just a little more")
+                    # Start our waterpump for 5 seconds at very slow speed
+                    explorerhat.motor.one.forward(10)
+                else:
+                    print("Soil is WET mantaing the water pump off")
+        # just wait for 5 seconds before getting a new read of humidity
+        sleep(5)
+         # Stop the waterpump
+        explorerhat.motor.one.stop()
+
+    except KeyboardInterrupt:
+        break

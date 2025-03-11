@@ -1,0 +1,117 @@
+﻿# Python Code Chapter 16 IoT SMART HOME IoT Messaging code
+# This code plays the role os Subscriber, and it is suscribing to the 
+# temperature category
+
+# Our Publisher code is going to be running by Python command in LxTerminal
+# Remember that here we are simulating the reading taken and sent from a thermometer
+
+# This is the command to indicate the temperature in Celsius degrees signal (the number you type is the temperature
+# mosquitto_pub -h localhost -t "fancontrol/temperature" -m 28
+# This indicates that our termometer has read a 28º C temperature
+# We will only have to validate that the temperature reading is a numeric value
+
+import pygame
+
+# Import the LED class from the gpiozero control library
+from gpiozero import LED
+
+# Import the sleep class from time library
+from time import sleep
+
+# Here we define the three leds objects and connection
+# GREEN LED  : TEMPERATURE IS TOO COLD BELOW 15ºC
+# YELLOW LED : TEMPERATURE IS COOL BETWEEN 15ºC AND 24ºC
+# RED LED    : TEMPERATURE IS TOO HOT ABOVE 24ºC
+
+# The COOL Yellow led is connected to gpio PIN 7
+Yellow_Cool_led = LED(7)
+
+# The HOT red led is connected to gpio PIN 8
+Red_Hot_led = LED(8)
+
+# The COLD led is connected to gpio PIN 11
+Green_Cold_led = LED(11)
+
+#Let's start by turning the all lights off
+Yellow_Cool_led.off()
+Red_Hot_led.off()
+Green_Cold_led.off()
+
+# Import the Paho library to interact with MQTT Broker
+import paho.mqtt.client as mqtt
+
+# We define the address of the MQTT Broker, in this case, the Mosquitto broker is on the same Raspberry Pi where our Suscriber code is running so, our MQTT Server Address is localhost
+
+MQTTserverAddress = "localhost"
+
+# Define the category suscribed to
+MQTTClientName = "fancontrol"
+topic = "fancontrol/temperature"
+
+mqttClient = mqtt.Client(MQTTClientName)
+
+# Initiate and clear the messaging queue
+SuscriptionStatusMessages = False
+
+def connectionStatus(client, userdata, flags, rc):
+    global SuscriptionStatusMessages
+    if not SuscriptionStatusMessages:
+        SuscriptionStatusMessages = True
+        print("subscribing")
+        # This code plays the role os Suscriber, and it is suscribing to the 
+        # fancontrol/temperature category
+        mqttClient.subscribe("fancontrol/temperature")
+        print("subscribed")
+
+def messageDecoder(client, userdata, msg):
+    message = msg.payload.decode(encoding='UTF-8')
+
+    # Here we will begin the reading of the queue for temperature values
+
+    print ("I am reading the temperature queue")
+    # Validate if input is numeric
+    print("Temperature sent:",message)
+    try:
+        temperature_reading = float(message)
+    except ValueError:
+        print("this reading did not contain a number!")
+        temperature_reading = 999.99
+    print("Temperature value:",temperature_reading)
+                
+         # Turning all lights off first
+    Green_Cold_led.off()
+    Yellow_Cool_led.off()
+    Red_Hot_led.off()
+      
+    if temperature_reading == 999.99:
+        # Turning the all lights on for 5 seconds indicating this in an error
+        print("ERROR lights BAD VALUE")
+        Green_Cold_led.blink()
+        Yellow_Cool_led.blink()
+        Red_Hot_led.blink()
+        sleep(5)
+    elif temperature_reading > 24:
+        # Turning the HOT led light
+        Red_Hot_led.on()
+    elif temperature_reading >= 15 and temperature_reading <= 24:
+        # Turning the COOL led light
+        Yellow_Cool_led.on()
+    elif temperature_reading < 15:
+        # Turning the COLD led light
+        Green_Cold_led.on()
+        Green_Cold_led.blink()
+
+    else:
+        print("INCORRECT VALUE")
+    sleep (1)
+    
+# Start the main program by calling functions to mqttClient
+mqttClient.on_connect = connectionStatus
+mqttClient.on_message = messageDecoder
+
+# Connect to the MQTT server & loop forever.
+# CTRL-C will stop the program from running.
+
+mqttClient.connect(MQTTserverAddress)
+
+mqttClient.loop_forever()

@@ -1,0 +1,60 @@
+﻿# Python Code Chapter 16 IoT SMART HOME IoT Messaging code
+# This code plays the role os Publisher, and it is publishing one hundred simulated random temperature values from -20º C to 55º C
+# and it publist the values to the fancontrol/temperature category
+    
+from time import sleep
+import random
+
+from paho.mqtt import client as mqtt_client
+
+# This is the client message queue for publishing
+MQTTClientNamePublish = "fancontrol/temperature"
+
+# Generate a Client ID with the publish queue name fancontrol/temperature
+client_id = f'{MQTTClientNamePublish}'
+
+def connect_mqtt():
+    def on_connect(client, userdata, flags, rc):
+        if rc == 0:
+            print("Connected to MQTT Broker!")
+        else:
+            print("Failed to connect, return code %d\n", rc)
+
+    client = mqtt_client.Client(MQTTClientNamePublish)
+ #   client.on_connect = on_connect
+    MQTTserverAddress = "localhost"
+
+    client.connect(MQTTserverAddress)
+    return client
+
+def publish_temperatures(client):
+    temperature_value = 1
+    while True:
+        sleep(1)
+# The original idea was to send an ascending temperature value from 1 to 100
+        temperature_message = f"{temperature_value}"
+# Instead of publishing an ascending temperature, we are changing the code to generate a random temperature value
+# this random temperature value between -20ºC and 55ºC simulate an environment temperature 
+        temperature_message = f"{random.randint(-20,55)}"
+
+        sent_status = client.publish(MQTTClientNamePublish, temperature_message)
+        # The publish function returns two values:0 or 1
+        status = sent_status [0]
+        if status == 0:
+            print(f"Temperature: `{temperature_message}` sent to queue `{MQTTClientNamePublish}`")
+        else:
+            print(f"Unable to send temperature to queue {MQTTClientNamePublish}")
+        temperature_value += 1
+        if temperature_value > 100:
+            break
+
+
+def PublishingLoop():
+    client = connect_mqtt()
+    client.loop_start()
+    publish_temperatures(client)
+    client.loop_stop()
+
+
+if __name__ == '__main__':
+    PublishingLoop()

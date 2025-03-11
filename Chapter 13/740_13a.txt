@@ -1,0 +1,70 @@
+﻿/*
+  Code 740_13 A
+    Connecting and reading the Humidity Sensor
+ */
+ 
+// We are going to use A1 as our input analog pin
+int ouranalogpin = A1;
+
+// the setup routine runs once when you press reset:
+// In void setup we define initial parameters for the Arduino like serial port speed,  I/O pin
+void setup() {
+  // Declare ouranalogpin as input
+  pinMode (ouranalogpin, INPUT);
+  // Declare serial port speed
+  Serial.begin(9600);
+}
+
+// The foLlowing code goes inside void loop
+// the loop routine runs over and over again forever:
+void loop() {
+  // Define the variable that will receive the values of the analog read of the A1
+  int HumidSensorValue = analogRead(ouranalogpin);
+
+  // Display the value of the read in our serial port and a Message:
+  // we can also see it on our screen(the Arduino IDE interaction screen: Serial Monitor)
+  // If the value is greater than or equal 1000 the humidity sensor is detecting an almost dry environment
+  // if the value es between 900 and 1000 then the humidity of the soil is good
+  // if the value is less than 901 then the soil is too wet
+ 
+ if (HumidSensorValue >= 1000) (Serial.print("SOIL IS DRY"));
+ else if ((HumidSensorValue <= 999) && (HumidSensorValue >=901))   (Serial.print("SOIL IS GOOD"));
+ else if (HumidSensorValue <= 900)   (Serial.print("SOIL WET"));
+ else;
+  
+ // print out the value read:
+ Serial.print("\n Soil Humidity Value : ");
+ Serial.println(HumidSensorValue);
+ delay(5000);
+ // repeat the red after 5 second,
+}
+
+/*
+  Code 740_13 B : Only sends the value through the serial port
+    Connecting and reading the Humidity Sensor
+ */
+ 
+// We are going to use A1 as our input analog pin
+int ouranalogpin = A1;
+
+// the setup routine runs once when you press reset:
+// In void setup we define initial parameters for the Arduino like serial port speed,  I/O pin
+void setup() {
+  // Declare ouranalogpin as input
+  pinMode (ouranalogpin, INPUT);
+  // Declare serial port speed
+  Serial.begin(9600);
+}
+
+// The following code goes inside void loop
+// the loop routine runs over and over again forever:
+void loop() {
+  // Define the variable that will receive the values of the analog read of the A1
+  int HumidSensorValue = analogRead(ouranalogpin);
+
+  // Display the value of the read in our serial port
+  Serial.println(HumidSensorValue);
+  delay(5000);
+  // repeat the red after 5 second,
+}
+
